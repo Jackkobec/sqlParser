@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import static gudusoft.gsqlparser.ESqlStatementType.sstinformixOutput;
 import static gudusoft.gsqlparser.ESqlStatementType.sstselect;
 
 /*
@@ -75,7 +76,7 @@ public class SqlQueryParser {
 //        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 ORDER BY name ASC ;";
 
         String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 AND user.email = 'vasa@gmail.com' OR user.email = 'peta@gmail.com'" +
-                "ORDER BY name ASC ;";
+                "ORDER BY name DESC LIMIT 10, 50;";
 
 //        String sqlQuery = "SELECT * FROM user;";
 //        String sqlQuery = "INSERT INTO user(userName) VAlUES ('Kola');";
@@ -152,6 +153,9 @@ public class SqlQueryParser {
                 // Parse Order By case
                 parseOrderByCase((TSelectSqlStatement) stmt);
 
+                // Parse Limit case
+                parseLimitCase((TSelectSqlStatement) stmt);
+
                 System.out.println("======================");
                 System.out.println("======================");
 
@@ -206,13 +210,46 @@ public class SqlQueryParser {
             System.out.println("tWhereClaus.getCondition(): " + tWhereClaus.getCondition());
             conditions.add(tWhereClaus.getCondition());
 
-            conditions.forEach(i -> System.out.println("WhereCase Condition: " + i));
+            System.out.println("tWhereClaus.getCondition().getLeftOperand(): " + tWhereClaus.getCondition().getLeftOperand());
+            System.out.println("tWhereClaus.getCondition().getLeftOperand().getStartToken: " + tWhereClaus.getCondition().getLeftOperand().getStartToken());
+            System.out.println("tWhereClaus.getCondition().getLeftOperand().getEndToken: " + tWhereClaus.getCondition().getLeftOperand().getEndToken());
+            System.out.println("tWhereClaus.getCondition().getLeftOperand().getFlattedAndOrExprs: " + tWhereClaus.getCondition().getLeftOperand().getFlattedAndOrExprs());
+
+            parseWhereCaseExpression(tWhereClaus.getCondition());
+
+            System.out.println("tWhereClaus.getCondition().getBetweenOperand(): " + tWhereClaus.getCondition().getBetweenOperand());
+            System.out.println("tWhereClaus.getCondition().getRightOperand(): " + tWhereClaus.getCondition().getRightOperand());
+            System.out.println("tWhereClaus.getCondition().getAndOrTokenBeforeExpr(): " + tWhereClaus.getCondition().getAndOrTokenBeforeExpr());
         }
 
         WhereCase whereCase = new WhereCase(conditions);
         whereCase.parseSqlBlock(whereCase.getConditions());
 
         return whereCase;
+    }
+
+     /*       '=': '$eq',
+             '<>': '$ne',
+             '>': '$gt',
+             '<': '$lt',
+             '>=': '$ge',
+             '<=': '$le',
+
+             'and': '$and',
+             'or': '$or',*/
+
+    private static void parseWhereCaseExpression(TExpression tExpression){
+
+        String ress = tExpression.toString().replaceAll("=","\\$eq").replaceAll("<>","\\$ne").replaceAll(">","\\$gt")
+                .replaceAll("<","\\$lt").replaceAll(">=","\\$ge").replaceAll("<=","\\$le").replaceAll("and", "\\$and")
+                .replaceAll("or","\\$or").replaceAll("AND", "\\$and").replaceAll("OR","\\$or");
+
+        System.out.println("parseWhereCaseExpression: " + ress);
+        System.out.println(tExpression.getFlattedAndOrExprs());//выпиливает end и or щперации в массив
+        System.out.println(tExpression.getLeftOperand());
+        System.out.println(tExpression.getRightOperand());
+        System.out.println(tExpression.getRightOperand().getAndOrTokenBeforeExpr());
+
     }
 
     /**
@@ -236,6 +273,35 @@ public class SqlQueryParser {
         orderByCase.parseSqlBlock(orderByCase.getFields());
 
         return orderByCase;
+    }
+
+    /**
+     * Parse LIMIT case
+     * <p>
+     * Includes the possibility to use SKIP operation as a LIMIT fromIndex toIndex.
+     * Example: SELECT * FROM user LIMIT 7,70;  -  means users between 7 and 70 indexes(start on 7, end on 70).
+     *
+     * @param stmt
+     */
+
+    private static LimitCase parseLimitCase(TSelectSqlStatement stmt) {
+
+        List<Object> limits = new ArrayList<>();
+
+        // limit clause
+        if (stmt.getLimitClause() != null) {
+            TLimitClause tLimitClause = stmt.getLimitClause();
+            System.out.println("tLimitClause.getOffset(): " + tLimitClause.getOffset());
+            System.out.println("tLimitClause.getRow_count(): " + tLimitClause.getRow_count());
+            System.out.println("tLimitClause.getStartToken(): " + tLimitClause.getStartToken());
+            System.out.println("tLimitClause.getEndToken(): " + tLimitClause.getEndToken());
+            limits.add(tLimitClause);
+        }
+
+        LimitCase limitCase = new LimitCase(limits);
+        limitCase.parseSqlBlock(limitCase.getLimits());
+
+        return limitCase;
     }
 
 
