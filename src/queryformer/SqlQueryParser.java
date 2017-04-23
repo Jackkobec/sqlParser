@@ -70,7 +70,7 @@ public class SqlQueryParser {
 //        String sqlQuery = "  SELECT    userName   " +
 //                "     FROM         user  WHERE     user.id > 2;";
 
-        String sqlQuery = "  SELECT    user.name      FROM         user  WHERE     user.id > 2;";
+        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2;";
 //        String sqlQuery = "INSERT INTO user(userName) VAlUES ('Kola');";
 
 
@@ -100,7 +100,25 @@ public class SqlQueryParser {
                 }
 
                 System.out.println("Check syntax ok!");
-                System.out.println(sqlparser.sqlstatements.get(i).sqlstatementtype);
+                System.out.println("My Tests.");
+                System.out.println("======================");
+                System.out.println("======================");
+                System.out.println("Statement type: " + sqlparser.sqlstatements.get(i).sqlstatementtype);
+
+                TCustomSqlStatement stmt = sqlparser.sqlstatements.get(i);
+                TResultColumn resultColumn = stmt.getResultColumnList().getResultColumn(i);
+
+                // Для получения всех колонок нужно пройтись цикром по статменту.
+                // Move with loop for get all columns from statement
+                for (int j = 0; j < stmt.getResultColumnList().size(); j++) {
+                    // Gets only column name from the current column list. Example name
+                    System.out.println("resultColumn.getColumnNameOnly(): " + resultColumn.getColumnNameOnly());
+                    // Gets full expression from the current column list. Example user.name
+                    System.out.println("resultColumn.getExpr(): " + resultColumn.getExpr());
+                    System.out.println("resultColumn.getEndToken(): " + resultColumn.getEndToken());
+                }
+                System.out.println("======================");
+                System.out.println("======================");
 
                 analyzeStmt(sqlparser.sqlstatements.get(i));
 //                System.out.println("Check syntax ok!");
