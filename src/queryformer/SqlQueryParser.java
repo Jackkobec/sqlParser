@@ -74,7 +74,8 @@ public class SqlQueryParser {
 
 //        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 ORDER BY name ASC ;";
 
-        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 AND user.email = 'vasa@gmail.com' ORDER BY name ASC ;";
+        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 AND user.email = 'vasa@gmail.com' OR user.email = 'peta@gmail.com'" +
+                "ORDER BY name ASC ;";
 
 //        String sqlQuery = "SELECT * FROM user;";
 //        String sqlQuery = "INSERT INTO user(userName) VAlUES ('Kola');";
@@ -143,10 +144,13 @@ public class SqlQueryParser {
                 projection.parseSqlBlock(projection.getProjections());
 
                 // Parse FROM case
-                parseFromCase(stmt, sqlparser);
+                parseFromCase((TSelectSqlStatement) stmt, sqlparser);
 
                 // Parse Where case
-                parseWhereCase(stmt, sqlparser);
+                parseWhereCase((TSelectSqlStatement) stmt);
+
+                // Parse Order By case
+                parseOrderByCase((TSelectSqlStatement) stmt);
 
                 System.out.println("======================");
                 System.out.println("======================");
@@ -161,11 +165,17 @@ public class SqlQueryParser {
     }
 
     /**
+     * TCustomSqlStatement - это статмент без привязки к онкретной операции, тоесть для: SELECT, INSERT, UPDATE etc.
+     *
+     * TSelectSqlStatement - это статмент конкретно для SELECT операции. Без проблем кастуется из TCustomSqlStatement
+     */
+
+    /**
      * Method for parse FROM case
      *
      * @param stmt
      */
-    private static FromCase parseFromCase(TCustomSqlStatement stmt, TGSqlParser sqlparser) {
+    private static FromCase parseFromCase(TSelectSqlStatement stmt, TGSqlParser sqlparser) {
 
         List<Object> joins = new ArrayList<>();
 
@@ -185,7 +195,7 @@ public class SqlQueryParser {
      *
      * @param stmt
      */
-    private static WhereCase parseWhereCase(TCustomSqlStatement stmt, TGSqlParser sqlparser) {
+    private static WhereCase parseWhereCase(TSelectSqlStatement stmt) {
 
         List<Object> conditions = new ArrayList<>();
 
@@ -195,13 +205,37 @@ public class SqlQueryParser {
             // Gets a conditions from Where case. Example: user.id > 2 AND user.email = 'vasa@gmail.com'
             System.out.println("tWhereClaus.getCondition(): " + tWhereClaus.getCondition());
             conditions.add(tWhereClaus.getCondition());
+
+            conditions.forEach(i -> System.out.println("WhereCase Condition: " + i));
         }
 
         WhereCase whereCase = new WhereCase(conditions);
         whereCase.parseSqlBlock(whereCase.getConditions());
 
-
         return whereCase;
+    }
+
+    /**
+     * Perse ORDER BY case
+     *
+     * @param stmt
+     */
+    private static OrderByCase parseOrderByCase(TSelectSqlStatement stmt) {
+
+        List<Object> fields = new ArrayList<>();
+
+        // Order by case
+        if (stmt.getOrderbyClause() != null) {
+            TOrderBy tOrderBy = stmt.getOrderbyClause();
+            // Gets fields and post condition. Example: name ASC
+            System.out.println("tOrderBy.getItems(): " + tOrderBy.getItems());
+            fields.add(tOrderBy.getItems());
+        }
+
+        OrderByCase orderByCase = new OrderByCase(fields);
+        orderByCase.parseSqlBlock(orderByCase.getFields());
+
+        return orderByCase;
     }
 
 

@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 /**
  * Created by Jack on 23.04.2017.
  */
-
+@Data
 public class FromCase implements ISqlBlockParser {
 
     private List<Object> joins = new ArrayList<>();
@@ -18,9 +18,6 @@ public class FromCase implements ISqlBlockParser {
         Stream.of(joins).forEach(i -> this.joins.add(i));
     }
 
-    public List<Object> getJoins() {
-        return joins;
-    }
 
     @Override
     public String parseSqlBlock(Object block) {
