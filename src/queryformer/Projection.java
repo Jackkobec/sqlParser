@@ -21,7 +21,9 @@ public class Projection implements ISqlBlockParser {
     @Override
     public String parseSqlBlock(Object projection) {
 
-        System.out.println("Projections: " + projection);
+        // Correct view for printing. Without superfluous brackets
+        projections.forEach(i -> System.out.printf("Projection: %s\n",  i.toString()));
+
         return projection.toString();
     }
 

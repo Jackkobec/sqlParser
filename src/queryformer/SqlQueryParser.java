@@ -74,7 +74,9 @@ public class SqlQueryParser {
 
 //        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 ORDER BY name ASC ;";
 
-        String sqlQuery = "SELECT * FROM user;";
+        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 AND user.email = 'vasa@gmail.com' ORDER BY name ASC ;";
+
+//        String sqlQuery = "SELECT * FROM user;";
 //        String sqlQuery = "INSERT INTO user(userName) VAlUES ('Kola');";
 
 
@@ -143,6 +145,9 @@ public class SqlQueryParser {
                 // Parse FROM case
                 parseFromCase(stmt, sqlparser);
 
+                // Parse Where case
+                parseWhereCase(stmt, sqlparser);
+
                 System.out.println("======================");
                 System.out.println("======================");
 
@@ -173,6 +178,30 @@ public class SqlQueryParser {
         fromCase.parseSqlBlock(fromCase.getJoins());
 
         return fromCase;
+    }
+
+    /**
+     * Method for parse WHERE case.
+     *
+     * @param stmt
+     */
+    private static WhereCase parseWhereCase(TCustomSqlStatement stmt, TGSqlParser sqlparser) {
+
+        List<Object> conditions = new ArrayList<>();
+
+        //where clause
+        if (stmt.getWhereClause() != null) {
+            TWhereClause tWhereClaus = stmt.getWhereClause();
+            // Gets a conditions from Where case. Example: user.id > 2 AND user.email = 'vasa@gmail.com'
+            System.out.println("tWhereClaus.getCondition(): " + tWhereClaus.getCondition());
+            conditions.add(tWhereClaus.getCondition());
+        }
+
+        WhereCase whereCase = new WhereCase(conditions);
+        whereCase.parseSqlBlock(whereCase.getConditions());
+
+
+        return whereCase;
     }
 
 

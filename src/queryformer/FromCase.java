@@ -25,7 +25,10 @@ public class FromCase implements ISqlBlockParser {
     @Override
     public String parseSqlBlock(Object block) {
 
-        System.out.printf("FromCase: %s\n", joins.toString());
+//        System.out.printf("FromCase: %s\n", joins.toString());
+        // Correct view for printing. Without superfluous brackets.
+        joins.forEach(i -> System.out.printf("FromCase: %s\n",  i.toString()));
+
         return joins.toString();
     }
 
