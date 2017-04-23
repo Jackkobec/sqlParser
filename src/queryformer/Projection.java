@@ -22,7 +22,7 @@ public class Projection implements ISqlBlockParser {
     @Override
     public String parseSqlBlock(Object block) {
 
-        System.out.println(block);
+        System.out.println("Projection: " + block);
         return block.toString();
     }
 

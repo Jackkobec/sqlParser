@@ -106,16 +106,28 @@ public class SqlQueryParser {
                 System.out.println("Statement type: " + sqlparser.sqlstatements.get(i).sqlstatementtype);
 
                 TCustomSqlStatement stmt = sqlparser.sqlstatements.get(i);
-                TResultColumn resultColumn = stmt.getResultColumnList().getResultColumn(i);
+//                TResultColumn resultColumn = stmt.getResultColumnList().getResultColumn(i);
 
                 // Для получения всех колонок нужно пройтись цикром по статменту.
                 // Move with loop for get all columns from statement
                 for (int j = 0; j < stmt.getResultColumnList().size(); j++) {
+                    // Движемся по стейтменту с итерацией по колонкам j.  stmt.getResultColumnList().getResultColumn(j);
+                    // Moving through the statement with iterate by column j.
+                    TResultColumn resultColumn = stmt.getResultColumnList().getResultColumn(j);
                     // Gets only column name from the current column list. Example name
                     System.out.println("resultColumn.getColumnNameOnly(): " + resultColumn.getColumnNameOnly());
                     // Gets full expression from the current column list. Example user.name
                     System.out.println("resultColumn.getExpr(): " + resultColumn.getExpr());
+                    // Получает конечный результат с выражения типо user.name - результатом будет name
+                    // Gets end token from the current expression like a user.name - result will be name
                     System.out.println("resultColumn.getEndToken(): " + resultColumn.getEndToken());
+                    // Получает начальный результат с выражения типо user.name - результатом будет user
+                    // Gets start token from the current expression like a user.name - result will be user
+                    System.out.println("resultColumn.getStartToken(): " + resultColumn.getStartToken());
+
+                    System.out.println("Projections:");
+                    Projection projection = new Projection(resultColumn.getColumnNameOnly());
+                    projection.parseSqlBlock(projection.getProjection());
                 }
                 System.out.println("======================");
                 System.out.println("======================");
