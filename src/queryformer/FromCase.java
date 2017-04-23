@@ -25,7 +25,7 @@ public class FromCase implements ISqlBlockParser {
     @Override
     public String parseSqlBlock(Object block) {
 
-//        System.out.println("FromCase: " + joins);
+        System.out.printf("FromCase: %s\n", joins.toString());
         return joins.toString();
     }
 

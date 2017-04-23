@@ -72,7 +72,9 @@ public class SqlQueryParser {
 //        String sqlQuery = "  SELECT    userName   " +
 //                "     FROM         user  WHERE     user.id > 2;";
 
-        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 ORDER BY name ASC ;";
+//        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 ORDER BY name ASC ;";
+
+        String sqlQuery = "SELECT * FROM user;";
 //        String sqlQuery = "INSERT INTO user(userName) VAlUES ('Kola');";
 
 
@@ -139,7 +141,7 @@ public class SqlQueryParser {
                 projection.parseSqlBlock(projection.getProjections());
 
                 // Parse FROM case
-                System.out.println(parseFromCase(stmt, sqlparser));
+                parseFromCase(stmt, sqlparser);
 
                 System.out.println("======================");
                 System.out.println("======================");
