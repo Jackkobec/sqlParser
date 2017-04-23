@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import static gudusoft.gsqlparser.ESqlStatementType.sstselect;
 
@@ -70,7 +72,7 @@ public class SqlQueryParser {
 //        String sqlQuery = "  SELECT    userName   " +
 //                "     FROM         user  WHERE     user.id > 2;";
 
-        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2;";
+        String sqlQuery = "  SELECT    user.name,user.email     FROM         user  WHERE     user.id > 2 ORDER BY name ASC ;";
 //        String sqlQuery = "INSERT INTO user(userName) VAlUES ('Kola');";
 
 
@@ -105,8 +107,12 @@ public class SqlQueryParser {
                 System.out.println("======================");
                 System.out.println("Statement type: " + sqlparser.sqlstatements.get(i).sqlstatementtype);
 
+                // Берем конкретно первый статмент - это наша sqlQuery
                 TCustomSqlStatement stmt = sqlparser.sqlstatements.get(i);
+
 //                TResultColumn resultColumn = stmt.getResultColumnList().getResultColumn(i);
+
+                List<Object> projections = new ArrayList<>();
 
                 // Для получения всех колонок нужно пройтись цикром по статменту.
                 // Move with loop for get all columns from statement
@@ -125,10 +131,16 @@ public class SqlQueryParser {
                     // Gets start token from the current expression like a user.name - result will be user
                     System.out.println("resultColumn.getStartToken(): " + resultColumn.getStartToken());
 
-                    System.out.println("Projections:");
-                    Projection projection = new Projection(resultColumn.getColumnNameOnly());
-                    projection.parseSqlBlock(projection.getProjection());
+                    projections.add(resultColumn.getColumnNameOnly());
                 }
+
+                System.out.println("Projections:");
+                Projection projection = new Projection(projections);
+                projection.parseSqlBlock(projection.getProjections());
+
+                // Parse FROM case
+                System.out.println(parseFromCase(stmt, sqlparser));
+
                 System.out.println("======================");
                 System.out.println("======================");
 
@@ -140,6 +152,27 @@ public class SqlQueryParser {
             System.out.println(sqlparser.getErrormessage());
         }
     }
+
+    /**
+     * Method for parse FROM case
+     *
+     * @param stmt
+     */
+    private static FromCase parseFromCase(TCustomSqlStatement stmt, TGSqlParser sqlparser) {
+
+        List<Object> joins = new ArrayList<>();
+
+        for (int j = 0; j < sqlparser.sqlstatements.size(); j++) {
+//            TJoinList joinList = stmt.getJoins();
+            joins.add(stmt.getJoins());
+        }
+
+        FromCase fromCase = new FromCase(joins);
+        fromCase.parseSqlBlock(fromCase.getJoins());
+
+        return fromCase;
+    }
+
 
     protected static void analyzeStmt(TCustomSqlStatement stmt) {
 
